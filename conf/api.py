@@ -31,7 +31,8 @@ async def criar(req: Request):
     if not titulo:
         raise HTTPException(400, "titulo e obrigatorio")
     with conectar() as con, con.cursor() as cur:
-        cur.execute("INSERT INTO tarefas (titulo) VALUES (%s) RETURNING id", (titulo,))
+        cur.execute(
+            "INSERT INTO tarefas (titulo) VALUES (%s) RETURNING id", (titulo,))
         return {"id": cur.fetchone()[0], "titulo": titulo, "feita": False}
 
 
@@ -39,7 +40,8 @@ async def criar(req: Request):
 async def atualizar(tarefa_id: int, req: Request):
     feita = bool((await req.json()).get("feita"))
     with conectar() as con, con.cursor() as cur:
-        cur.execute("UPDATE tarefas SET feita=%s WHERE id=%s", (feita, tarefa_id))
+        cur.execute("UPDATE tarefas SET feita=%s WHERE id=%s",
+                    (feita, tarefa_id))
         if cur.rowcount == 0:
             raise HTTPException(404, "tarefa nao encontrada")
     return {"id": tarefa_id, "feita": feita}
@@ -50,6 +52,5 @@ def apagar(tarefa_id: int):
     with conectar() as con, con.cursor() as cur:
         cur.execute("DELETE FROM tarefas WHERE id=%s", (tarefa_id,))
         if cur.rowcount == 0:
-            raise HTTPException(404, "tarefa nao encontrada")
+            raise HTTPException(404,  "tarefa nao encontrada")
     return {"removida": tarefa_id}
-
