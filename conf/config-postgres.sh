@@ -18,3 +18,4 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='$USUARIO'" | gr
 sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='$BASE'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE $BASE OWNER $USUARIO;"
 sudo -u postgres psql -d "$BASE" -c "CREATE TABLE IF NOT EXISTS tarefas (id SERIAL PRIMARY KEY, titulo TEXT NOT NULL, feita BOOLEAN DEFAULT false); ALTER TABLE tarefas OWNER TO $USUARIO;"
 
+ 
