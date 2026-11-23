@@ -72,3 +72,33 @@ Notebook --> VM cloud-lab (host LXD) <IP-DA-VM>
 - DEV x PROD antes das ACLs: <!-- ALCANCOU -->
 - DEV x PROD depois das ACLs: <!-- BLOQUEADO -->
 - Bloqueio explícito do tráfego entre os ambientes: <!-- TODO: colar os comandos do README antigo -->
+
+# Parte 2 · Serviço, storage, persistência, snapshots e backup
+
+## Serviço implantado (trilha B)
+- **proxy** (nginx): página estática e proxy reverso para `/api/`
+- **app** (FastAPI): API de tarefas, porta 8000
+- **db** (PostgreSQL): banco `tarefas`, usuário `apiuser`
+- Endpoints: `GET /api/saude`, `GET/POST /api/tarefas`, `PATCH/DELETE /api/tarefas/{id}`
+- Publicação: PROD em `http://<IP-DA-VM>:8081` e DEV em `http://<IP-DA-VM>:8082`
+- Scripts em `conf/`: <!-- TODO: config-postgres.sh, api.py, api.service, instala-api.sh, index.html, nginx -->
+
+## Storage
+- Pool `pool-final` (dir)
+- Os dados do PostgreSQL ficam em `pool-final/vol-db` (PROD) e `dev-vol-db` (DEV), montados em `/dados`
+
+## Prova de persistência
+<!-- TODO: antes.json e depois.json, `lxc list` nos dois momentos, mensagem DADOS PRESERVADOS -->
+
+## Snapshots e backup
+- Snapshot de instância e de volume: <!-- TODO -->
+- Desastre simulado (apagar tarefas pela API): <!-- TODO -->
+- Restauração (com o `db` parado): <!-- TODO -->
+- Export e import: <!-- TODO -->
+
+### Procedimento de restauração (5 linhas)
+1. <!-- TODO -->
+2.
+3.
+4.
+5.
