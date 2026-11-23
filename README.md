@@ -35,3 +35,40 @@ profiles/   perfil-base, perfil-proxy, perfil-app, perfil-db (.yaml)
 conf/       nginx e scripts de instalação (conf/tls fica fora do Git)
 docs/       arquitetura.md, readme/ (partes deste README) e evidencias/
 ```
+# Parte 2 · Arquitetura, decisões de projeto, rede e isolamento
+
+## Arquitetura
+
+
+```
+Notebook --> VM cloud-lab (host LXD) <IP-DA-VM>
+              | 8081 (http) e 8444 (https)   [dispositivo proxy do LXD]
+              v
+ net-prod 10.10.10.0/24:  proxy(.10) -> app(.11) -> db(.12)
+ net-dev  10.10.20.0/24:  dev-proxy(.10) dev-app(.11) dev-db(.12)
+ Storage: pool-final (dir) -> vol-db (PROD) e dev-vol-db (DEV)
+```
+
+- **proxy:** nginx com a página estática e proxy reverso da API
+- **app:** API FastAPI (porta 8000, interna)
+- **db:** PostgreSQL (porta 5432, interna)
+
+## Decisões de projeto
+- Container ou VM leve em cada camada, e por quê: <!-- TODO -->
+- Por que `dir` no pool: <!-- TODO -->
+- Por que duas redes (PROD e DEV): <!-- TODO -->
+
+## Preparação do ambiente
+- Projeto LXD: `final-equipe6`
+- Teste de VM leve (KVM): <!-- TODO: resultado e kernel do host x da VM -->
+
+## Redes, perfis e padrão de criação
+- Redes `net-prod` (10.10.10.0/24) e `net-dev` (10.10.20.0/24), com NAT
+- Perfis: `perfil-base`, `perfil-proxy`, `perfil-app`, `perfil-db`
+- Padrão de criação de instância: <!-- TODO: as 5 linhas -->
+
+## Isolamento e exposição
+- Só o proxy é publicado (8081 e 8444); o banco não é acessível de fora: <!-- TODO: saída do Test-NetConnection -->
+- DEV x PROD antes das ACLs: <!-- ALCANCOU -->
+- DEV x PROD depois das ACLs: <!-- BLOQUEADO -->
+- Bloqueio explícito do tráfego entre os ambientes: <!-- TODO: colar os comandos do README antigo -->
