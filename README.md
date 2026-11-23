@@ -1,18 +1,18 @@
 # Projeto Final · Cloud Computing · Nuvem privada com LXD
 
-**Instituição:** UNINASSAU · **Curso:** Análise e Desenvolvimento de Sistemas
+**Instituição:** UNINASSAU · **Curso:** Sistemas da informação e Engenharia da computação
 **Disciplina:** Cloud Computing
 **Equipe:** 6 · **Projeto LXD:** `final-equipe6`
 **Serviço implantado:** Trilha B · API de tarefas com FastAPI e PostgreSQL
 
 ## Integrantes
 
-- Chrystian Eduardo
-- Heitor Farias
-- Isabelle Amorim
-- Jair Filho
-- Marcelo Nascimento
-- Rodrigo Lucas
+- Chrystian Eduardo Santos  Sousa / 01862423
+- Heytor Farias Fernando da Silva / 01857126
+- Isabelle Amorim Rodrigues / 01796342
+- Jair Liberato da Silva Filho / 01864955
+- Marcelo Nascimento silva / 01865122 
+- Rodrigo Lucas Ferreira / 01811731
 
 ## Visão geral
 
@@ -102,3 +102,54 @@ Notebook --> VM cloud-lab (host LXD) <IP-DA-VM>
 3.
 4.
 5.
+
+
+# Parte 3 · Acesso, TLS, automação, monitoramento e reprodução
+
+## Pré-requisitos
+- VM Ubuntu com LXD configurado, 4 GB livres e acesso à Internet
+- Usuário com permissão para executar `lxc`
+- Uma senha de banco segura. Ela é fornecida em execução, nunca gravada no Git
+
+## Como reproduzir em uma VM nova
+
+Substitua o `final-equipe6` apenas se o número da equipe mudar.
+
+```bash
+cd projeto-infraestrutura
+chmod +x scripts/*.sh
+export PROJETO=final-equipe6
+DB_PASS='uma-senha-segura' ENV=prod ./scripts/deploy.sh
+DB_PASS='uma-senha-segura' ENV=dev  ./scripts/deploy.sh
+```
+
+PROD publica HTTP em `http://<IP-DA-VM>:8081` e DEV em `http://<IP-DA-VM>:8082`. Troque `<IP-DA-VM>` pelo endereço real da VM (descubra com `ip -br addr`).
+
+## Automação
+- `scripts/deploy.sh` (`ENV=prod` ou `ENV=dev`) reconstrói o ambiente
+- `scripts/destroy.sh` derruba as instâncias (use `--volumes` para apagar também os volumes)
+- Teste de reprodutibilidade: <!-- TODO: destroy --volumes, deploy prod, deploy dev -->
+
+## TLS
+
+```bash
+./scripts/gerar-tls.sh <IP-DA-VM>
+ENV=prod ./scripts/habilitar-tls.sh
+```
+
+Importe `conf/tls/ca.crt` no navegador e abra `https://<IP-DA-VM>:8444`. Os arquivos privados são ignorados pelo Git.
+
+## Acesso e perfis de usuário
+- Admin (`admin-equipe6`): todos os projetos
+- Operador (`operador-equipe6`): restrito ao projeto `final-equipe6`
+- Teste do operador: <!-- TODO: projeto próprio funciona, `default` negado -->
+
+## Monitoramento
+- `scripts/monitor.sh`
+- Prova dos limites do perfil (nproc, free -m, carga com `yes`): <!-- TODO -->
+
+## Limitações e melhorias
+<!-- TODO: alta disponibilidade, cluster, segredos, monitoramento avançado -->
+
+
+
