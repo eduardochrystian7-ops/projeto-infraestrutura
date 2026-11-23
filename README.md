@@ -1,63 +1,37 @@
-# Projeto final - Nuvem privada LXD
+# Projeto Final · Cloud Computing · Nuvem privada com LXD
 
-Implementação da **trilha B** do roteiro: uma API de tarefas com FastAPI e PostgreSQL. A arquitetura completa está em [docs/arquitetura.md](docs/arquitetura.md).
+**Instituição:** UNINASSAU · **Curso:** Análise e Desenvolvimento de Sistemas
+**Disciplina:** Cloud Computing
+**Equipe:** 6 · **Projeto LXD:** `final-equipe6`
+**Serviço implantado:** Trilha B · API de tarefas com FastAPI e PostgreSQL
 
-## Pré-requisitos
+## Integrantes
 
-- VM Ubuntu com LXD configurado, 4 GB livres e acesso à Internet;
-- usuário com permissão para executar `lxc`;
-- uma senha de banco segura. Ela é fornecida em execução, nunca gravada no Git.
+- Chrystian Eduardo
+- Heitor Farias
+- Isabelle Amorim
+- Jair Filho
+- Marcelo Nascimento
+- Rodrigo Lucas
 
-Substitua `final-equipeN` pelo número real da equipe exportando `PROJETO`.
+## Visão geral
 
-## Subir PROD e DEV
+Implementação da **trilha B** do roteiro: uma API de tarefas com FastAPI e PostgreSQL, publicada sobre uma nuvem privada LXD com redes isoladas (PROD e DEV), storage persistente, TLS, snapshots, automação e monitoramento. A arquitetura completa está em [docs/arquitetura.md](docs/arquitetura.md).
 
-```bash
-cd projeto-infraestrutura
-chmod +x scripts/*.sh
-export PROJETO=final-equipe<N>
-DB_PASS='uma-senha-segura' ENV=prod ./scripts/deploy.sh
-DB_PASS='uma-senha-segura' ENV=dev  ./scripts/deploy.sh
+## Documentação
+
+| Parte | Conteúdo | Arquivo |
+|---|---|---|
+| 1 | Arquitetura, decisões de projeto, rede e isolamento | [docs/readme/01-arquitetura-rede.md](docs/readme/01-arquitetura-rede.md) |
+| 2 | Serviço, storage, persistência, snapshots e backup | [docs/readme/02-servico-storage-backup.md](docs/readme/02-servico-storage-backup.md) |
+| 3 | Acesso, TLS, automação, monitoramento e reprodução | [docs/readme/03-acesso-automacao-monitoramento.md](docs/readme/03-acesso-automacao-monitoramento.md) |
+
+## Estrutura do repositório
+
 ```
-
-PROD publica HTTP em `http://<IP-DA-VM>:8081`; DEV, em `:8082`. A API tem `GET /api/saude`, `GET/POST /api/tarefas`, `PATCH/DELETE /api/tarefas/{id}`. Os dados do PostgreSQL ficam em `pool-final/vol-db` (ou `dev-vol-db`).
-
-## TLS e isolamento
-
-```bash
-./scripts/gerar-tls.sh <IP-DA-VM>
-ENV=prod ./scripts/habilitar-tls.sh
+README.md
+scripts/    deploy.sh, destroy.sh, monitor.sh, gerar-tls.sh, habilitar-tls.sh
+profiles/   perfil-base, perfil-proxy, perfil-app, perfil-db (.yaml)
+conf/       nginx e scripts de instalação (conf/tls fica fora do Git)
+docs/       arquitetura.md, readme/ (partes deste README) e evidencias/
 ```
-
-Importe `conf/tls/ca.crt` no navegador e abra `https://<IP-DA-VM>:8444`. Os arquivos privados são ignorados pelo Git.
-
-Para bloquear explicitamente o tráfego entre os ambientes:
-
-```bash
-lxc network acl create acl-prod
-lxc network acl rule add acl-prod ingress action=drop source=10.10.20.0/24
-lxc network acl rule add acl-prod egress action=drop destination=10.10.20.0/24
-lxc network set net-prod security.acls=acl-prod
-lxc network set net-prod security.acls.default.ingress.action=allow
-lxc network set net-prod security.acls.default.egress.action=allow
-```
-
-Repita com `acl-dev`, invertendo as sub-redes, conforme o roteiro.
-
-## Backup, restauração e operação
-
-Antes de restaurar, pare o banco. Snapshot da instância e volume são operações separadas:
-
-```bash
-lxc --project "$PROJETO" snapshot db snap-instancia
-lxc storage volume snapshot pool-final vol-db snap-volume
-lxc --project "$PROJETO" stop db
-lxc storage volume restore pool-final vol-db snap-volume
-lxc --project "$PROJETO" start db
-```
-
-Backup portável: `lxc storage volume export pool-final vol-db ~/backup/vol-db.tar.gz`. Para derrubar somente instâncias, execute `ENV=prod ./scripts/destroy.sh`; acrescente `--volumes` para remover também o volume. O painel é iniciado com `./scripts/monitor.sh`.
-
-## Evidências para a entrega
-
-Guarde em `docs/evidencias/` as saídas de `lxc version`, redes, volumes, portas externas, teste DEV x PROD antes/depois da ACL, certificados, snapshots/restore e painel de monitoramento. Não comite senhas, tokens, chaves ou backups.
